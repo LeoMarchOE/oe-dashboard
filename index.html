@@ -186,8 +186,12 @@ function startLoad(url){
   frame.src=url;
   authTimer=setTimeout(()=>loader.classList.add('needauth'), AUTH_TIMEOUT);
 }
+// On phones/tablets, iOS blocks embedded Google sign-in, so open the
+// dashboard full-screen (first-party) instead of in the in-app viewer.
+const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 function openApp(i){
   const app=APPS[i]; currentUrl=app.url;
+  if(isTouch){ window.location.href=app.url; return; }
   vName.textContent=app.name; vDesc.textContent=app.desc||'';
   viewer.classList.add('open');
   startLoad(app.url);
