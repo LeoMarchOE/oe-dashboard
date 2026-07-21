@@ -163,7 +163,7 @@ const APPS = [
   { name:"OE Estimators", desc:"Estimator Performance", url:"https://script.google.com/a/macros/optiline.co/s/AKfycbzt9gabRWt3hz4gPfbG1nbU6IYuj8V_vX_QNxQzxR3b14MPs694OonxHy3vKS1wybtI/exec", icon:"estperf" },
   { name:"OE Bid Pace", desc:"Bid Pace Overview", url:"https://script.google.com/a/macros/optiline.co/s/AKfycbxwu9EkRx5XyDj3AO5WAnPOL6XfuvDMWfbkttuCpQD2ohZSJ0arUTXtGmbnMcdgn0xBQg/exec", icon:"bidpace" },
   { name:"OE Precon Leader", desc:"Precon Leader Dashboard", url:"https://script.google.com/a/macros/optiline.co/s/AKfycbxnrOPlMjiypugLnB_yF8qAqkr626QX2Bz0wvn9A1xpROgUx6q69m1-XnB9wmYjkITaqQ/exec", icon:"preconlead" },
-  { name:"OE Scorecards", desc:"Estimator Scorecard PDFs", url:"https://script.google.com/a/macros/optiline.co/s/AKfycbwY4tlhkpGF9eLR3ItyEUimdTY37Z5M4ONyaoJZXdSk_e-a0TWEqvHg9yxJPr4NuTUi/exec", icon:"precon" }
+  { name:"Estimator Report Cards", desc:"Estimator Scorecard PDFs", url:"https://script.google.com/a/macros/optiline.co/s/AKfycbwY4tlhkpGF9eLR3ItyEUimdTY37Z5M4ONyaoJZXdSk_e-a0TWEqvHg9yxJPr4NuTUi/exec", icon:"reportcard" }
   // ,{ name:"New App", desc:"What it does", url:"https://.../exec", icon:"grid" }
 ];
 
@@ -177,7 +177,8 @@ const ICONS = {
   funnel:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5z"/></svg>`,
   estperf:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V13"/><path d="M9 20V8"/><path d="M14 20v-4"/><path d="M19 20V4"/><path d="M3 20h18"/></svg>`,
   bidpace:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 17a8.5 8.5 0 0 1 17 0"/><path d="M12 17l5-3.2"/><circle cx="12" cy="17" r="1.3" fill="currentColor" stroke="none"/><path d="M12 8.4v1.6"/><path d="M5.8 11.1l1.1 1.1"/><path d="M18.2 11.1l-1.1 1.1"/></svg>`,
-  preconlead:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.3"/><path d="M12 7.3V10"/><rect x="9" y="10" width="6" height="11" rx="1"/><rect x="3" y="14" width="6" height="7" rx="1"/><rect x="15" y="13" width="6" height="8" rx="1"/></svg>`
+  preconlead:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.3"/><path d="M12 7.3V10"/><rect x="9" y="10" width="6" height="11" rx="1"/><rect x="3" y="14" width="6" height="7" rx="1"/><rect x="15" y="13" width="6" height="8" rx="1"/></svg>`,
+  reportcard:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5z"/><path d="M14 3v5h5"/><path d="M9 12.2l2 2 4-4"/><path d="M9 17h6"/></svg>`
 };
 
 const grid=document.getElementById('grid');
