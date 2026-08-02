@@ -164,7 +164,8 @@ const APPS = [
   { name:"OE Bid Pace", desc:"Bid Pace Overview", url:"https://script.google.com/a/macros/optiline.co/s/AKfycbxwu9EkRx5XyDj3AO5WAnPOL6XfuvDMWfbkttuCpQD2ohZSJ0arUTXtGmbnMcdgn0xBQg/exec", icon:"bidpace" },
   { name:"OE Precon Leader", desc:"Precon Leader Dashboard", url:"https://script.google.com/a/macros/optiline.co/s/AKfycbxnrOPlMjiypugLnB_yF8qAqkr626QX2Bz0wvn9A1xpROgUx6q69m1-XnB9wmYjkITaqQ/exec", icon:"preconlead" },
   { name:"OE Operations", desc:"Operations Dashboard", url:"https://script.google.com/a/macros/optiline.co/s/AKfycbyrnpPOfw35MBWJvOk-m_3V91XESMqOBdTOyiS2_Dzon1_dPogQ1CAiQSWiUohhIiKR/exec", icon:"operations", ext:true },
-  { name:"OE Estimator Scorecards", desc:"Estimator Report Cards", url:"https://script.google.com/a/macros/optiline.co/s/AKfycbwY4tlhkpGF9eLR3ItyEUimdTY37Z5M4ONyaoJZXdSk_e-a0TWEqvHg9yxJPr4NuTUi/exec", icon:"scorecard" }
+  { name:"OE Estimator Scorecards", desc:"Estimator Report Cards", url:"https://script.google.com/a/macros/optiline.co/s/AKfycbwY4tlhkpGF9eLR3ItyEUimdTY37Z5M4ONyaoJZXdSk_e-a0TWEqvHg9yxJPr4NuTUi/exec", icon:"scorecard" },
+  { name:"OE Active Projects", desc:"Active Projects", url:"https://script.google.com/macros/s/AKfycbw0Do9YS1XL7Ks3LA7AJ4_E9eoEZS_kErF29IdDQBfJyb0ccKhIsLhc6G6TrUIXf-iQGw/exec", icon:"projects" }
   // ,{ name:"New App", desc:"What it does", url:"https://.../exec", icon:"grid" }
 ];
 
@@ -180,7 +181,8 @@ const ICONS = {
   bidpace:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 17a8.5 8.5 0 0 1 17 0"/><path d="M12 17l5-3.2"/><circle cx="12" cy="17" r="1.3" fill="currentColor" stroke="none"/><path d="M12 8.4v1.6"/><path d="M5.8 11.1l1.1 1.1"/><path d="M18.2 11.1l-1.1 1.1"/></svg>`,
   preconlead:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.3"/><path d="M12 7.3V10"/><rect x="9" y="10" width="6" height="11" rx="1"/><rect x="3" y="14" width="6" height="7" rx="1"/><rect x="15" y="13" width="6" height="8" rx="1"/></svg>`,
   operations:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.6v3M12 18.4v3M2.6 12h3M18.4 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1"/></svg>`,
-  scorecard:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a1.6 1.6 0 0 0-1.6 1.6v14.8A1.6 1.6 0 0 0 7 21h10a1.6 1.6 0 0 0 1.6-1.6V7.6z"/><path d="M14 3v4.6H18.6"/><path d="M8.6 12.4l1.5 1.5 3-3.1"/><path d="M8.6 17h6"/></svg>`
+  scorecard:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a1.6 1.6 0 0 0-1.6 1.6v14.8A1.6 1.6 0 0 0 7 21h10a1.6 1.6 0 0 0 1.6-1.6V7.6z"/><path d="M14 3v4.6H18.6"/><path d="M8.6 12.4l1.5 1.5 3-3.1"/><path d="M8.6 17h6"/></svg>`,
+  projects:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><rect x="4" y="9.5" width="6.5" height="11" rx="1"/><rect x="12.5" y="4" width="7" height="16.5" rx="1"/><path d="M6.6 13h1.2M6.6 16.2h1.2M15 7.4h2.2M15 11h2.2M15 14.6h2.2"/></svg>`
 };
 
 const grid=document.getElementById('grid');
