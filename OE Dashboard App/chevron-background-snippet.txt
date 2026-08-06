@@ -1,0 +1,71 @@
+OPTILINE CHEVRON BACKGROUND — exact match from the Precon dashboard
+====================================================================
+
+This reproduces the background you like: subtle white chevrons over the black
+base, with two soft red glows bleeding in from the top-right corner. It's pure
+CSS (no image files), so it's fast and never breaks.
+
+HOW IT WORKS
+- The red glows live on `body` (two radial-gradients over your dark base).
+- The chevron pattern is a fixed `body::before` overlay at 5% opacity, so it
+  sits behind everything and never blocks clicks.
+
+
+------------------------------------------------------------
+STEP 1 — paste these two rules into the dashboard's <style> block
+------------------------------------------------------------
+
+/* red corner glow on the base background */
+body{
+  background:
+    radial-gradient(1200px 700px at 85% -10%, rgba(225,37,27,.10), transparent 60%),
+    radial-gradient(700px 500px at 100% -5%, rgba(225,37,27,.10), transparent 60%),
+    #0a0a0a;                         /* <- your base color; keep or match yours */
+  background-attachment:fixed;
+}
+
+/* the chevron pattern overlay */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.05;
+  z-index:0;
+  background-image:
+    linear-gradient(135deg, transparent 46%, #fff 46%, #fff 49%, transparent 49%),
+    linear-gradient(225deg, transparent 46%, #fff 46%, #fff 49%, transparent 49%);
+  background-size:120px 120px;
+  background-position:60px 0;
+}
+
+
+------------------------------------------------------------
+STEP 2 — make sure your content sits ABOVE the overlay
+------------------------------------------------------------
+
+The overlay uses z-index:0, so your main content wrapper needs to be at
+z-index:1 or higher, or the chevrons could paint over faint elements. In the
+Precon dashboard this is done with:
+
+  #cRoot, #mRoot { position:relative; z-index:1; }
+
+For a dashboard with a different top-level wrapper, add the same to that
+wrapper (swap in that wrapper's id/class). If a dashboard has no single
+wrapper, add this catch-all instead:
+
+  body > * { position:relative; z-index:1; }
+
+
+------------------------------------------------------------
+NOTES / TUNING
+------------------------------------------------------------
+- MORE visible chevrons: raise opacity from .05 to .07 or .08.
+- BIGGER / SMALLER chevrons: change background-size (120px 120px). Larger px =
+  bigger, more spaced-out chevrons.
+- If a dashboard already sets its own `background:` on body, merge the two
+  radial-gradients into that existing rule (keep its base color last) instead
+  of overwriting it. The chevrons themselves are the `body::before` rule — that
+  part you can paste as-is regardless.
+- After pasting: Save, then Deploy > Manage deployments > edit (pencil) >
+  Version: New version > Deploy. The /exec URL stays the same.

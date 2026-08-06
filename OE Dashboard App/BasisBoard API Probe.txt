@@ -1,0 +1,55 @@
+/* =====================================================================
+ * BasisBoard API PROBE  —  TWO files. Paste each into the matching file.
+ * =====================================================================
+ *
+ * FILE 1 —  appsscript.json  (the manifest)
+ * -----------------------------------------
+ * In the editor: Project Settings (gear) → check
+ * "Show 'appsscript.json' manifest file in editor". Then open appsscript.json
+ * and REPLACE its whole contents with this block (this is what grants the
+ * permission to call the BasisBoard API):
+ *
+ * {
+ *   "timeZone": "America/New_York",
+ *   "exceptionLogging": "STACKDRIVER",
+ *   "runtimeVersion": "V8",
+ *   "oauthScopes": [
+ *     "https://www.googleapis.com/auth/script.external_request",
+ *     "https://www.googleapis.com/auth/spreadsheets"
+ *   ]
+ * }
+ *
+ * FILE 2 —  Code.gs  (paste everything BELOW this comment block)
+ * -------------------------------------------------------------
+ * 1) Put your read-only key in BB_KEY.
+ * 2) Run  bbProbe , approve the prompt (now includes "external service").
+ * 3) View → Logs, copy the output, paste it back. Then clear the key.
+ * ===================================================================== */
+
+var BB_KEY  = 'PASTE_YOUR_READONLY_KEY';         // e.g. bb_live_...
+var BB_BASE = 'https://api.basisboard.com/v1';
+
+function bbGet_(path) {
+  var res = UrlFetchApp.fetch(BB_BASE + path, {
+    method: 'get',
+    headers: { Authorization: 'Bearer ' + BB_KEY },
+    muteHttpExceptions: true
+  });
+  return { code: res.getResponseCode(), body: res.getContentText() };
+}
+
+function bbProbe() {
+  var paths = ['/reminders', '/users', '/messages/stats', '/stages'];
+  var out = [];
+  paths.forEach(function (p) {
+    var r;
+    try { r = bbGet_(p); }
+    catch (e) { out.push('===== GET ' + p + ' -> ERROR ' + e + ' ====='); return; }
+    var body = r.body || '';
+    out.push('===== GET ' + p + '  (HTTP ' + r.code + ') =====');
+    out.push(body.length > 1800 ? body.substring(0, 1800) + '  …[truncated]' : body);
+  });
+  var txt = out.join('\n\n');
+  Logger.log(txt);
+  return txt;
+}

@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1300">
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0a; --panel:#121212; --panel2:#161616; --line:#2a2a2a;
+    --red:#E1251B; --white:#fff; --dim:#8a8a8a; --dimmer:#5a5a5a;
+    --green:#3ddc84; --amber:#e8a33d;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--white); font-family:Inter,Arial,sans-serif; padding:28px 34px 60px;}
+  .disp{font-family:Michroma,'Arial Black',sans-serif;}
+
+  /* header */
+  .hdr{display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:6px;}
+  .logo-img{height:34px; width:auto; display:block;}
+  .title{font-family:Michroma,sans-serif; font-size:30px; margin:18px 0 6px; letter-spacing:.04em; text-transform:uppercase;}
+  .subtitle{font-size:11px; letter-spacing:.28em; color:var(--dim); text-transform:uppercase; margin-bottom:26px;}
+  .asof{text-align:right; font-size:12px; color:var(--dim); line-height:1.8;}
+  .asof b{color:var(--white);}
+
+  /* window column header row */
+  .winrow{display:grid; grid-template-columns:230px repeat(9,1fr); gap:0; align-items:end; margin-bottom:10px;}
+  .winlab{font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--dim); text-align:center; padding:6px 4px;}
+  .winlab .rng{display:block; font-size:9px; letter-spacing:.05em; color:var(--dimmer); margin-top:3px; text-transform:none;}
+  .winlab.active{color:var(--white); border-bottom:2px solid var(--red);}
+  .stagehdr{font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--dim); padding:6px 4px;}
+
+  /* overview stage cards */
+  .stage{display:grid; grid-template-columns:230px repeat(9,1fr); border:1px solid var(--line); background:var(--panel); margin-bottom:14px; border-radius:6px; overflow:hidden;}
+  .stage.hot{border-color:var(--red); box-shadow:0 0 0 1px rgba(225,37,27,.25);}
+  .stg-desc{padding:16px 14px; border-right:1px solid var(--line);}
+  .stg-desc .nm{display:flex; gap:8px; align-items:center; font-weight:800; font-size:13.5px; margin-bottom:6px;}
+  .stg-desc .ic{width:22px;height:22px;border-radius:4px;background:var(--red);display:inline-flex;align-items:center;justify-content:center;font-size:11px;flex:none;}
+  .stg-desc .tx{font-size:10.5px; color:var(--dim); line-height:1.5;}
+  .cell{padding:14px 6px; text-align:center; border-right:1px solid #1d1d1d; display:flex; flex-direction:column; justify-content:center; gap:3px;}
+  .cell:last-child{border-right:none;}
+  .big{font-family:Michroma,sans-serif; font-size:19px; line-height:1.1;}
+  .big.red{color:var(--red);}
+  .big.sm{font-size:15px;}
+  .unit{font-size:9.5px; color:var(--dimmer); letter-spacing:.05em;}
+  .pctv{font-size:10.5px; font-weight:700;}
+  .pctv.g{color:var(--green);} .pctv.a{color:var(--amber);} .pctv.d{color:var(--dimmer);}
+
+  /* leaderboard */
+  .lb-head{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:34px 0 14px;}
+  .lb-title{font-family:Michroma,sans-serif; font-size:16px; letter-spacing:.04em; margin-right:8px;}
+  .tabs{display:flex; gap:2px; flex-wrap:wrap;}
+  .tab{padding:7px 13px; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); background:var(--panel); border:1px solid var(--line); cursor:pointer; font-weight:700;}
+  .tab.active{color:var(--white); border-color:var(--red); background:#1a0d0c;}
+  .grp{margin-left:auto; display:flex; gap:2px;}
+  table{width:100%; border-collapse:collapse; font-size:13px; background:var(--panel); border:1px solid var(--line); border-radius:6px;}
+  th{font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--dim); text-align:right; padding:11px 12px; border-bottom:1px solid var(--line); cursor:pointer; user-select:none; white-space:nowrap;}
+  th:first-child{text-align:left;}
+  th.on{color:var(--white);}
+  td{padding:10px 12px; text-align:right; border-bottom:1px solid #1b1b1b; white-space:nowrap;}
+  td:first-child{text-align:left; font-weight:700;}
+  tr.row{cursor:pointer;}
+  tr.row:hover{background:#181414;}
+  tr.row.open{background:#1c1210;}
+  .bar-wrap{position:relative; height:5px; background:#222; border-radius:3px; margin-top:5px; overflow:hidden; min-width:110px;}
+  .bar-s{position:absolute; inset:0 auto 0 0; background:#666; border-radius:3px;}
+  .bar-a{position:absolute; inset:0 auto 0 0; background:var(--red); border-radius:3px;}
+  .bar-r{position:absolute; top:0; bottom:0; background:#3d3d3d; border-radius:0 3px 3px 0;}
+  .money{font-family:Michroma,sans-serif; font-size:13.5px;}
+  .money.red{color:var(--red);}
+  .dim{color:var(--dim); font-weight:400;}
+  .flag{color:var(--dimmer);}
+  tr.total td{border-top:2px solid var(--red); font-weight:800; background:var(--panel2);}
+
+  /* history expansion */
+  .hist td{background:#0e0e0e; padding:16px 18px;}
+  .hist-title{font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--dim); margin-bottom:10px;}
+  .cols{display:flex; gap:4px;}
+  .colu{flex:1; min-width:0;}
+  .pair{display:flex; align-items:flex-end; gap:1px;}
+  .pair .cb{flex:1;}
+  .cb{border-radius:2px 2px 0 0;}
+  .cb.s{background:#555;} .cb.a{background:var(--red);}
+  .cl{font-size:8px; color:var(--dimmer); text-align:center; margin-top:4px; white-space:nowrap; overflow:hidden;}
+  .legend{display:flex; gap:16px; font-size:10px; color:var(--dim); margin-top:10px;}
+  .sw{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:-1px;}
+
+  .foot{font-size:10.5px; color:var(--dimmer); line-height:1.8; margin-top:30px; border-top:1px solid var(--line); padding-top:14px; max-width:1100px;}
+
+  /* capacity matrix */
+  .mx-head{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:38px 0 6px;}
+  .mx-sub{font-size:10.5px; color:var(--dim); margin-bottom:12px; max-width:900px; line-height:1.5;}
+  .mx{width:100%; border-collapse:collapse; font-size:11.5px; background:var(--panel); border:1px solid var(--line);}
+  .mx th{font-size:9.5px; letter-spacing:.1em; padding:8px 6px; text-align:center; cursor:default;}
+  .mx th:first-child, .mx td:first-child{text-align:left; padding-left:12px; white-space:nowrap; font-weight:700; font-size:12px;}
+  .mx td{padding:7px 6px; text-align:center; border-bottom:1px solid #181818; border-right:1px solid #141414; white-space:nowrap;}
+  .mx .base{border-left:2px solid var(--line); font-weight:700; color:var(--white);}
+  .mx tr.mtot td{border-top:2px solid var(--red); font-weight:800; background:var(--panel2);}
+  .mx .z{color:#3a3a3a;}
+
+  /* weekly new-bid chart */
+  .wk-wrap{border:1px solid var(--line); background:var(--panel); padding:18px 16px 12px; margin-top:14px; position:relative;}
+  .wk-chart{display:flex; align-items:flex-end; gap:3px; height:150px; position:relative;}
+  .wk-col{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;}
+  .wk-val{font-size:8.5px; color:var(--dim); margin-bottom:2px; white-space:nowrap;}
+  .wk-bar{width:100%; background:var(--red); border-radius:2px 2px 0 0; min-height:0;}
+  .wk-bar.zero{background:#2a2a2a; height:2px;}
+  .wk-lab{font-size:8px; color:var(--dimmer); margin-top:4px; white-space:nowrap; overflow:hidden; max-width:100%;}
+  .wk-n{font-size:7.5px; color:var(--dimmer);}
+  .wk-avg{position:absolute; left:0; right:0; border-top:1px dashed #666; pointer-events:none;}
+  .wk-avg span{position:absolute; right:2px; top:-14px; font-size:9px; color:var(--dim); background:var(--panel); padding:0 4px;}
+  .wk-tgt{position:absolute; left:0; right:0; border-top:1.5px solid var(--amber); pointer-events:none; z-index:2;}
+  .wk-tgt span{position:absolute; left:2px; top:-14px; font-size:9px; color:var(--amber); background:var(--panel); padding:0 4px; font-weight:700; letter-spacing:.05em;}
+  .wkce-tgt{position:absolute; left:0; right:0; border-top:1px solid var(--amber); opacity:.85; pointer-events:none; z-index:2;}
+
+  /* per-CE weekly full-detail charts */
+  .wkce-hd{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin:24px 0 8px;}
+  .wkce-name{font-weight:800; font-size:14px; letter-spacing:.02em;}
+  .wkce-meta2{font-size:11px; color:var(--dim);}
+
+  /* estimator goal tracking */
+  .gl{width:100%; border-collapse:collapse; font-size:12.5px; background:var(--panel); border:1px solid var(--line);}
+  .gl th{font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); padding:10px 10px; border-bottom:1px solid var(--line); text-align:right; white-space:nowrap;}
+  .gl th:first-child{text-align:left; padding-left:14px;}
+  .gl td{padding:9px 10px; text-align:right; border-bottom:1px solid #1b1b1b; white-space:nowrap;}
+  .gl td:first-child{text-align:left; padding-left:14px; font-weight:700;}
+  .gdot{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:8px; vertical-align:0;}
+  .gbar{position:relative; width:120px; height:7px; background:#242424; border-radius:4px; display:inline-block; vertical-align:1px; margin-left:8px; overflow:visible;}
+  .gfill{position:absolute; left:0; top:0; bottom:0; border-radius:4px;}
+  .gtick{position:absolute; top:-2px; bottom:-2px; left:66.67%; width:1.5px; background:#888;}
+  .gpace{font-weight:800; font-family:Michroma,sans-serif; font-size:11.5px;}
+  .g-green{color:var(--green);} .g-amber{color:var(--amber);} .g-red{color:var(--red);}
+  .gsub{font-size:10px; color:var(--dimmer);}
+  .tagline{font-family:Michroma,sans-serif; font-size:13px; letter-spacing:.14em; margin-top:26px; text-transform:uppercase;}
+  .tagline span{color:var(--red);}
+  #loading{padding:80px 0; text-align:center; color:var(--dim); font-size:13px; letter-spacing:.2em; text-transform:uppercase;}
+  #err{display:none; padding:40px; color:var(--red); font-size:14px;}
+  @media (max-width:1100px){ .winrow,.stage{grid-template-columns:180px repeat(9,1fr);} .big{font-size:14px;} }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <img class="logo-img" src="data:image/png;base64,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" alt="Optiline Enterprises">
+    <div class="title">Estimator Performance</div>
+    <div class="subtitle">Preconstruction Department &nbsp;·&nbsp; Submitted $ vs Awarded $ by Estimator</div>
+  </div>
+  <div class="asof" id="asof"></div>
+</div>
+
+<div id="loading">Loading live BasisBoard data…</div>
+<div id="err"></div>
+
+<div id="app" style="display:none;">
+  <div id="cefilterbar"></div>
+  <div id="overview"></div>
+  <div class="lb-head">
+    <div class="lb-title">Leaderboard</div>
+    <div class="tabs" id="tabs"></div>
+    <div class="grp tabs" id="grp"></div>
+  </div>
+  <div id="table"></div>
+  <div id="gp"></div>
+  <div id="matrix"></div>
+  <div id="weekly"></div>
+  <div id="weeklyce"></div>
+  <div id="goals"></div>
+  <div class="foot">
+    <div><b style="color:var(--dim);">How to read this:</b> Bids are counted by <b style="color:var(--dim);">Submitted date</b> (fallback: Bid Deadline, then Created date) with value = Submitted $. Awards are counted by <b style="color:var(--dim);">Awarded date</b> with value = Won Quotes $. Windows are calendar-based and <b style="color:var(--dim);">live through today</b>: Today = today's activity · Weekly = Monday through today · Monthly = 1st through today · Q1–Q4 = calendar quarters (current quarter runs through today) · YTD = Jan 1 through today · T12 = trailing 12 full months plus month-to-date. Note this differs from the Bid Funnel Overview, which anchors on yesterday — same-day figures here may still be filling in as the team works. <b style="color:var(--dim);">Leaderboard split:</b> New Bids = submitted in the window AND created (col C) in FY2026; Rebids = submitted in the window but created before 2026 — carryover pipeline being repriced or repushed. Cohort Win % and the flag threshold still use the combined total (new + rebid), since awards can come from either. Avg New Bid covers new bids only. In the name-cell bar, solid gray = new $, darker gray = rebid $, red = awarded $.</div>
+    <div style="margin-top:8px;"><b style="color:var(--dim);">Two win rates, on purpose.</b> The overview <b style="color:var(--dim);">Decided Win % \u00b7 Created FY</b> row is Won $ \u00f7 (Won $ + Lost $) among this year's created bids that have actually reached a decision — undecided bids are excluded, so it answers "of what's been decided, did we win our share?" and is meaningful mid-year. Wins are dated by Awarded date with Won Quotes $; losses by Lost date, valued at Lost Quotes $ (falling back to Submitted $ where Lost Quotes wasn't entered — currently a meaningful share of losses, a hygiene item). Two caveats: early in the year it over-represents fast-deciding small work, and dollar-weighted will read below count-based whenever we win small and lose big — the count version is shown underneath for exactly that comparison. The leaderboard's <b style="color:var(--dim);">Cohort Win %</b> column is different by design: all vintages submitted in the window followed to eventual outcome — the mature, defensible conversion number for assessing books (20%+ at full maturity).</div>
+    <div style="margin-top:8px;"><b style="color:var(--dim);">Sales Cycle</b> = days from <b style="color:var(--dim);">Created date</b> (col C — when the opportunity first entered BasisBoard) to <b style="color:var(--dim);">Awarded date</b>. <b style="color:var(--dim);">Revenue Cycle</b> = days from Created date to <b style="color:var(--dim);">OE Start Date</b> (col AO) — when revenue generation begins. The gap between the two is the award-to-billing lag. Both are measured on awards landed in the window, use medians (not averages) so one outlier can't skew them, and split at $750K award value to match division structure. Cycles below 0 or above 2,000 days are excluded as entry noise; awards missing an OE Start Date drop out of Revenue Cycle only. OE Start Dates can be scheduled in the future, so recent-window Revenue Cycles include projected starts. The count next to each leaderboard Med Cycle figure is the awards behind the median — treat medians on fewer than ~5 awards as anecdote.</div>
+    <div style="margin-top:8px;"><b style="color:var(--dim);">Capacity matrix:</b> monthly bid volume per estimator, shaded to each row's own trailing-12 peak. Baselines are per-estimator by design — books differ (Special Projects estimators carry many small bids; enterprise estimators few large ones), so compare an estimator to their own baseline, not to each other. Sustained volume above baseline across the team, alongside capacity declines in the Bid Funnel, is the signal that estimating headcount is the constraint.</div>
+    <div style="margin-top:8px;">Individual-estimator win rate is context, not a standalone KPI — portfolio mix and CE bid selection drive it. Ratios on fewer than 10 bids show an asterisk. Dollar metrics lead throughout; counts are secondary. Data reads live from BasisBoard's sheet on every page load.</div>
+  </div>
+  <div class="tagline">Creating Opportunity Through Growth. <span>10X.</span></div>
+</div>
+
+<script>
+var RECS = [];          // [est, ce, subDate, sub$, awdDate, won$, createdDate]
+var ALLRECS = [];       // full unfiltered set (Chief-Estimator dropdown filters a view off this)
+var ceFilter = 'ALL';   // 'ALL' or a specific Chief Estimator name
+function ceKeyOf(r){ return r[1] || CEMAP[r[0]] || 'Unassigned CE'; }
+function filteredView(){ return (ceFilter==='ALL') ? ALLRECS : ALLRECS.filter(function(r){ return ceKeyOf(r)===ceFilter; }); }
+function setCE(v){ ceFilter=v; if(v!=='ALL') groupBy='est'; openRow=null; render(); }
+var CEMAP = {};         // estimator -> most common chief estimator
+var WINDOWS = [];
+var activeWin = 'ytd';
+var groupBy = 'est';    // est | ce
+var sortKey = 'nSubD', sortDir = -1;
+var openRow = null;
+var FY = String(new Date().getFullYear());
+var matMetric = 'n';    // n = bid count | d = submitted $ | avg = avg bid $
+var WEEKLY_TARGET = 20e6;                 // department weekly new-bid target (FY-vintage)
+var CE_TARGETS = {                        // per-CE weekly new-bid targets
+  'John Boule': 8e6,
+  'Smit Shah': 7.5e6,
+  'Parth Bhuva': 1.75e6,
+  'Wheaton Weathers': 2.75e6
+};
+var ACTIVE_ESTIMATORS = [                 // capacity matrix roster; anyone else bidding in the last 4 weeks auto-appears flagged NEW
+  'Earvin Zurita','Chris Ross','Carlos Thome','Chad Bedell','Chris Soucy','Jason Tejeda',
+  'Denis Dube','Adam Campbell','Larry Van Daalen','Jason Duval','Shanvitha Vasamsetti','Andre Van Daalen'
+];
+var ESTIMATOR_GOALS = {                   // FY2026 weekly goals: [bid $/wk (new FY-vintage), award $/wk, start date]
+  'Jeff Stupalski':       [3000000, 600000, '2026-03-16'],
+  'Larry Van Daalen':     [3000000, 600000, '2026-02-09'],
+  'Jason Duval':          [2000000, 400000, '2026-04-20'],
+  'Denis Dube':           [2000000, 400000, '2026-01-01'],
+  'Chris Ross':           [2000000, 400000, '2026-01-01'],
+  'Carlos Thome':         [2000000, 400000, '2026-01-01'],
+  'Chad Bedell':          [1500000, 300000, '2026-01-01'],
+  'Earvin Zurita':        [1500000, 300000, '2026-01-01'],
+  'Adam Campbell':        [1000000, 200000, '2026-01-01'],
+  'Jason Tejeda':         [1000000, 200000, '2026-01-01'],
+  'Chris Soucy':          [1000000, 200000, '2026-01-01'],
+  'Shanvitha Vasamsetti': [1000000, 200000, '2026-04-27'],
+  'Andre Van Daalen':     [1000000, 200000, '2026-06-01']
+};
+
+// ---------- formatting ----------
+function fmtM(v){ if(v==null) return '\u2014'; var a=Math.abs(v);
+  if(a>=1e9) return '$'+(v/1e9).toFixed(2)+'B';
+  if(a>=1e6) return '$'+(v/1e6).toFixed(1)+'M';
+  if(a>=1e3) return '$'+(v/1e3).toFixed(0)+'K';
+  return '$'+Math.round(v); }
+function pct(v){ return v==null ? '\u2014' : (v*100).toFixed(1)+'%'; }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function iso(d){ return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
+function shortRange(s,e){ function f(x){var p=x.split('-'); return MN[+p[1]-1]+' '+(+p[2]);} return s===e ? f(s) : f(s)+' \u2013 '+f(e); }
+
+// ---------- window construction (anchored on yesterday) ----------
+function buildWindows(){
+  var today=new Date(); var anchor=new Date(today.getFullYear(),today.getMonth(),today.getDate());  // live: anchored on today
+  var y=anchor.getFullYear();
+  FY=String(y);
+  var A=iso(anchor);
+  var monday=new Date(anchor); var dow=(monday.getDay()+6)%7; monday.setDate(monday.getDate()-dow);
+  var qi=Math.floor(anchor.getMonth()/3);
+  function qWin(q){ var s=new Date(y,q*3,1), e=new Date(y,q*3+3,0);
+    if(q>qi) return {s:'',e:''};                    // future quarter — empty
+    if(q===qi) return {s:iso(s), e:A};              // current quarter, period-to-date
+    return {s:iso(s), e:iso(e)}; }
+  var t12=new Date(anchor.getFullYear(),anchor.getMonth()-12,1);
+  WINDOWS=[
+    {id:'daily', lab:'Today',   s:A, e:A},
+    {id:'weekly',lab:'Weekly',  s:iso(monday), e:A},
+    {id:'monthly',lab:'Monthly',s:iso(new Date(y,anchor.getMonth(),1)), e:A},
+    {id:'q1',lab:'Q1', s:qWin(0).s, e:qWin(0).e},
+    {id:'q2',lab:'Q2', s:qWin(1).s, e:qWin(1).e},
+    {id:'q3',lab:'Q3', s:qWin(2).s, e:qWin(2).e},
+    {id:'q4',lab:'Q4', s:qWin(3).s, e:qWin(3).e},
+    {id:'ytd',lab:'YTD '+y, s:y+'-01-01', e:A},
+    {id:'all',lab:'All Time', s:'0000-00-00', e:'9999-12-31'},
+    {id:'t12',lab:'Trailing 12M', s:iso(t12), e:A, tabOnly:true}
+  ];
+}
+function winById(id){ for(var i=0;i<WINDOWS.length;i++) if(WINDOWS[i].id===id) return WINDOWS[i]; return WINDOWS[0]; }
+function inWin(d,w){ return !!d && !!w.s && d>=w.s && d<=w.e; }
+
+// ---------- aggregation ----------
+function aggregate(w, keyFn){
+  var m={};
+  for(var i=0;i<RECS.length;i++){
+    var r=RECS[i], k=keyFn(r);
+    if(!m[k]) m[k]={key:k, subN:0,subD:0, nSubN:0,nSubD:0, rSubN:0,rSubD:0, awdN:0,awdD:0, cSubD:0,cWonD:0,cSubN:0,cWonN:0, fySubN:0,fySubD:0, dWonN:0,dWonD:0,dLostN:0,dLostD:0, gpD:0,gpWon:0,gpN:0,gpStN:0,gpCostN:0,gpMissN:0, cyc:[],cycS:[],cycE:[], rcyc:[],rcycS:[],rcycE:[]};
+    var g=m[k];
+    if(r[3]>0 && inWin(r[2],w)){ g.subN++; g.subD+=r[3];
+      g.cSubD+=r[3]; g.cSubN++;
+      if(r[5]>0){ g.cWonD+=r[5]; g.cWonN++; }           // cohort: bid submitted in window that eventually won
+      if(r[6] && r[6].slice(0,4)===FY){ g.nSubN++; g.nSubD+=r[3]; }   // new: created this fiscal year
+      else { g.rSubN++; g.rSubD+=r[3]; }                              // rebid: created prior to this fiscal year
+      if(r[2].slice(0,4)===FY && r[6] && r[6].slice(0,4)===FY){ g.fySubN++; g.fySubD+=r[3]; } }  // FY-vintage: submitted AND created this year
+    // Decided (FY-created): decisions landing in the window among bids created this fiscal year
+    if(r[6] && r[6].slice(0,4)===FY){
+      if(r[5]>0 && inWin(r[4],w)){ g.dWonN++; g.dWonD+=r[5]; }
+      if(r[8] && inWin(r[8],w)){ g.dLostN++; g.dLostD+=(r[9]>0?r[9]:r[3]); } }   // lost value: Lost Quotes, fallback Submitted $
+    if(r[5]>0 && inWin(r[4],w)){ g.awdN++; g.awdD+=r[5];
+      var gf=gpFrac(r);                                 // Bid GP fraction: stated GP % preferred, cost-derived fallback
+      if(gf!=null){ g.gpD+=r[5]*gf; g.gpWon+=r[5]; g.gpN++;
+        if(gpStated(r)) g.gpStN++; else g.gpCostN++; }
+      else { g.gpMissN++; }
+      var d=cycleDays(r[6],r[4]);                       // Sales cycle: Created (col C) -> Awarded
+      if(d!=null){ g.cyc.push(d); (r[5]>750000?g.cycE:g.cycS).push(d); }
+      var rv=cycleDays(r[6],r[7]);                      // Revenue cycle: Created (col C) -> OE Start (col AO)
+      if(rv!=null){ g.rcyc.push(rv); (r[5]>750000?g.rcycE:g.rcycS).push(rv); } }
+  }
+  var arr=[];
+  for(var k2 in m){ var e=m[k2];
+    e.cohort = e.cSubD>0 ? e.cWonD/e.cSubD : null;
+    e.avg    = e.nSubN>0 ? e.nSubD/e.nSubN : null;      // avg size of NEW bids
+    e.med    = median(e.cyc);
+    if(e.subD>0||e.awdD>0) arr.push(e); }
+  return arr;
+}
+function cycleDays(cd,ad){
+  if(!cd||!ad) return null;
+  var d=Math.round((new Date(ad)-new Date(cd))/86400000);
+  return (d>=0 && d<2000) ? d : null;                   // guard against entry noise
+}
+function gpFrac(r){
+  // Bid GP fraction for an awarded record. The Bid Gross Profit % field is the primary source
+  // (curated via the ZOHO backfill); (Submitted - Projected Cost) / Submitted remains as fallback.
+  // SCALE AUTO-DETECT: percent-formatted sheet cells arrive as decimals (0.18), while text
+  // entries like "18%" arrive as whole numbers (18). Values > 1 are whole-number percents and
+  // get divided by 100; values in (0, 1] are already fractions and are used as-is.
+  // Sanity window -10%..60% guards against entry noise in either source.
+  if(r[11]>0){
+    var s = r[11] > 1 ? r[11]/100 : r[11];
+    if(s >= -0.10 && s <= 0.60) return s;
+  }
+  if(r[3]>0 && r[10]>0){ var f=(r[3]-r[10])/r[3]; if(f>=-0.10 && f<=0.60) return f; }
+  return null;
+}
+function gpStated(r){
+  // True when the record's GP comes from the stated Bid Gross Profit % field (either scale).
+  if(!(r[11]>0)) return false;
+  var s = r[11] > 1 ? r[11]/100 : r[11];
+  return s >= -0.10 && s <= 0.60;
+}
+function median(a){
+  if(!a||!a.length) return null;
+  var s=a.slice().sort(function(x,y){return x-y;});
+  var m=Math.floor(s.length/2);
+  return s.length%2 ? s[m] : Math.round((s[m-1]+s[m])/2);
+}
+function totalsOf(arr){
+  var t={subN:0,subD:0,nSubN:0,nSubD:0,rSubN:0,rSubD:0,awdN:0,awdD:0,cSubD:0,cWonD:0,fySubN:0,fySubD:0,dWonN:0,dWonD:0,dLostN:0,dLostD:0,gpD:0,gpWon:0,gpN:0,gpStN:0,gpCostN:0,gpMissN:0,cyc:[],cycS:[],cycE:[],rcyc:[],rcycS:[],rcycE:[]};
+  arr.forEach(function(e){ t.subN+=e.subN;t.subD+=e.subD;t.nSubN+=e.nSubN;t.nSubD+=e.nSubD;t.rSubN+=e.rSubN;t.rSubD+=e.rSubD;t.awdN+=e.awdN;t.awdD+=e.awdD;t.cSubD+=e.cSubD;t.cWonD+=e.cWonD;
+    t.gpD+=e.gpD;t.gpWon+=e.gpWon;t.gpN+=e.gpN;t.gpStN+=e.gpStN;t.gpCostN+=e.gpCostN;t.gpMissN+=e.gpMissN;
+    t.fySubN+=e.fySubN;t.fySubD+=e.fySubD;t.dWonN+=e.dWonN;t.dWonD+=e.dWonD;t.dLostN+=e.dLostN;t.dLostD+=e.dLostD;
+    t.cyc=t.cyc.concat(e.cyc); t.cycS=t.cycS.concat(e.cycS); t.cycE=t.cycE.concat(e.cycE);
+    t.rcyc=t.rcyc.concat(e.rcyc); t.rcycS=t.rcycS.concat(e.rcycS); t.rcycE=t.rcycE.concat(e.rcycE); });
+  t.cohort=t.cSubD>0?t.cWonD/t.cSubD:null;
+  t.decWin=(t.dWonD+t.dLostD)>0 ? t.dWonD/(t.dWonD+t.dLostD) : null;
+  t.decWinN=(t.dWonN+t.dLostN)>0 ? t.dWonN/(t.dWonN+t.dLostN) : null;
+  t.med=median(t.cyc); t.medS=median(t.cycS); t.medE=median(t.cycE);
+  t.medR=median(t.rcyc); t.medRS=median(t.rcycS); t.medRE=median(t.rcycE);
+  return t;
+}
+
+// ---------- overview strip ----------
+function renderOverview(){
+  var cols=WINDOWS.filter(function(w){return !w.tabOnly;});
+  var head='<div class="winrow"><div class="stagehdr">Stage · By Window</div>';
+  cols.forEach(function(w){ head+='<div class="winlab">'+w.lab+(w.s?'<span class="rng">'+shortRange(w.s,w.e)+'</span>':'<span class="rng">starts later</span>')+'</div>'; });
+  head+='</div>';
+
+  var per=cols.map(function(w){ return totalsOf(aggregate(w,function(r){return r[0];})); });
+
+  function stage(icon,name,desc,cellFn,hot){
+    var h='<div class="stage'+(hot?' hot':'')+'"><div class="stg-desc"><div class="nm"><span class="ic">'+icon+'</span>'+name+'</div><div class="tx">'+desc+'</div></div>';
+    per.forEach(function(t,i){ h+='<div class="cell">'+cellFn(t,cols[i])+'</div>'; });
+    return h+'</div>';
+  }
+  var html=head;
+  html+=stage('\u25B6','Submitted \u00b7 Created FY'+FY,'Bids submitted in the window that were BOTH submitted and created (col C) in FY'+FY+'. Gray line = all vintages, for reconciliation.',function(t,w){
+    if(!w.s) return '<div class="big sm dim">\u2014</div>';
+    return '<div class="big">'+fmtM(t.fySubD)+'</div><div class="unit">'+t.fySubN.toLocaleString()+' bids \u00b7 all vintages: '+fmtM(t.subD)+' / '+t.subN.toLocaleString()+'</div>';
+  });
+  html+=stage('\u2691','Awarded','Awards landed in the window. Value = Won Quotes $, count = awards.',function(t,w){
+    if(!w.s) return '<div class="big sm dim">\u2014</div>';
+    return '<div class="big red">'+fmtM(t.awdD)+'</div><div class="unit">'+t.awdN.toLocaleString()+' awards</div>';
+  },true);
+  html+=stage('%','Decided Win % \u00b7 Created FY'+FY,'Won $ \u00f7 (Won $ + Lost $) among FY'+FY+'-created bids whose decision landed in the window. Undecided bids are excluded, so cohort youth doesn\u2019t distort it.',function(t,w){
+    if(!w.s) return '<div class="big sm dim">\u2014</div>';
+    if(t.decWin==null) return '<div class="big sm dim">\u2014</div><div class="unit">no decisions</div>';
+    var cls = t.decWin>=0.2?'g':'a';
+    return '<div class="big sm">'+pct(t.decWin)+'</div><div class="pctv '+cls+'">'+fmtM(t.dWonD)+' won \u00b7 '+fmtM(t.dLostD)+' lost</div>'
+      +'<div class="unit">by count: '+pct(t.decWinN)+' ('+t.dWonN+'W / '+t.dLostN+'L)</div>';
+  });
+  html+=stage('\u23F1','Sales Cycle','Median days from Created (opportunity entered BasisBoard) to Awarded, for awards landed in the window. Split at $750K award value.',function(t,w){
+    if(!w.s) return '<div class="big sm dim">\u2014</div>';
+    if(t.med==null) return '<div class="big sm dim">\u2014</div><div class="unit">no awards</div>';
+    var sub='';
+    if(t.medS!=null||t.medE!=null){
+      sub='<div class="unit">'+(t.medS!=null?'\u2264750K: '+t.medS+'d':'')+(t.medS!=null&&t.medE!=null?' \u00b7 ':'')+(t.medE!=null?'ENT: '+t.medE+'d':'')+'</div>';
+    }
+    return '<div class="big sm">'+t.med+'<span style="font-size:11px;color:var(--dim);"> days</span></div>'+sub;
+  });
+  html+=stage('\u25B8','Revenue Cycle','Median days from Created (col C) to OE Start Date (col AO) \u2014 opportunity entry to revenue generation \u2014 for awards landed in the window. Split at $750K award value.',function(t,w){
+    if(!w.s) return '<div class="big sm dim">\u2014</div>';
+    if(t.medR==null) return '<div class="big sm dim">\u2014</div><div class="unit">no dated starts</div>';
+    var sub='';
+    if(t.medRS!=null||t.medRE!=null){
+      sub='<div class="unit">'+(t.medRS!=null?'\u2264750K: '+t.medRS+'d':'')+(t.medRS!=null&&t.medRE!=null?' \u00b7 ':'')+(t.medRE!=null?'ENT: '+t.medRE+'d':'')+'</div>';
+    }
+    return '<div class="big sm">'+t.medR+'<span style="font-size:11px;color:var(--dim);"> days</span></div>'+sub;
+  });
+  document.getElementById('overview').innerHTML=html;
+}
+
+// ---------- leaderboard ----------
+function renderTabs(){
+  var t='';
+  WINDOWS.forEach(function(w){ t+='<div class="tab'+(activeWin===w.id?' active':'')+'" onclick="setWin(\''+w.id+'\')">'+w.lab+'</div>'; });
+  document.getElementById('tabs').innerHTML=t;
+  document.getElementById('grp').innerHTML=
+    '<div class="tab'+(groupBy==='est'?' active':'')+'" onclick="setGrp(\'est\')">By Estimator</div>'+
+    '<div class="tab'+(groupBy==='ce'?' active':'')+'" onclick="setGrp(\'ce\')">By Chief Estimator</div>';
+}
+function setWin(id){ activeWin=id; openRow=null; render(); }
+function setGrp(g){ groupBy=g; openRow=null; render(); }
+function setSort(k){ if(sortKey===k) sortDir=-sortDir; else {sortKey=k; sortDir=-1;} renderTable(); }
+function toggleRow(k){ openRow = openRow===k ? null : k; renderTable(); }
+
+function renderTable(){
+  var w=winById(activeWin);
+  var keyFn = groupBy==='est' ? function(r){return r[0];} : function(r){return (r[1]||CEMAP[r[0]]||'Unassigned CE');};
+  var arr=aggregate(w,keyFn);
+  arr.sort(function(a,b){ var av=a[sortKey]==null?-1:a[sortKey], bv=b[sortKey]==null?-1:b[sortKey];
+    if(typeof av==='string') return sortDir*av.localeCompare(bv);
+    return sortDir*(av-bv); });
+  var tot=totalsOf(arr);
+  var maxD=1; arr.forEach(function(e){ if(e.subD>maxD) maxD=e.subD; });
+
+  function th(k,l){ return '<th class="'+(sortKey===k?'on':'')+'" onclick="setSort(\''+k+'\')">'+l+(sortKey===k?(sortDir===-1?' \u25BE':' \u25B4'):'')+'</th>'; }
+  var h='<table><thead><tr>'+th('key',groupBy==='est'?'Estimator':'Chief Estimator')+th('nSubN','New Bids')+th('nSubD','New Bids $')+th('rSubN','Rebids')+th('rSubD','Rebid $')+th('awdN','Awards')+th('awdD','Awarded $')+th('cohort','Cohort Win %')+th('med','Med Cycle')+th('avg','Avg New Bid')+'</tr></thead><tbody>';
+
+  arr.forEach(function(e){
+    var flag = e.subN<10 ? ' <span class="flag">*</span>' : '';
+    h+='<tr class="row'+(openRow===e.key?' open':'')+'" onclick="toggleRow(\''+esc(e.key).replace(/'/g,"\\'")+'\')">'
+      +'<td>'+esc(e.key)+(groupBy==='est'&&CEMAP[e.key]?' <span class="dim" style="font-size:10.5px;">· '+esc(CEMAP[e.key])+'</span>':'')
+      +'<div class="bar-wrap"><div class="bar-s" style="width:'+(e.nSubD/maxD*100)+'%"></div><div class="bar-r" style="left:'+(e.nSubD/maxD*100)+'%;width:'+(e.rSubD/maxD*100)+'%"></div><div class="bar-a" style="width:'+(e.awdD/maxD*100)+'%"></div></div></td>'
+      +'<td class="dim">'+e.nSubN.toLocaleString()+'</td>'
+      +'<td class="money">'+fmtM(e.nSubD)+'</td>'
+      +'<td class="dim">'+e.rSubN.toLocaleString()+'</td>'
+      +'<td class="dim" style="font-family:Michroma,sans-serif;font-size:12px;">'+(e.rSubD>0?fmtM(e.rSubD):'<span class="dim">$0</span>')+'</td>'
+      +'<td class="dim">'+e.awdN.toLocaleString()+'</td>'
+      +'<td class="money red">'+(e.awdD>0?fmtM(e.awdD):'<span class="dim">$0</span>')+'</td>'
+      +'<td>'+pct(e.cohort)+flag+'</td>'
+      +'<td class="dim">'+(e.med!=null?e.med+'d <span class="flag" style="font-size:9px;">('+e.cyc.length+')</span>':'\u2014')+'</td>'
+      +'<td class="dim">'+fmtM(e.avg)+'</td></tr>';
+    if(openRow===e.key) h+=historyRow(e.key);
+  });
+  h+='<tr class="total"><td>TOTAL — '+arr.length+' '+(groupBy==='est'?'estimators':'chief estimators')+'</td>'
+    +'<td>'+tot.nSubN.toLocaleString()+'</td><td class="money">'+fmtM(tot.nSubD)+'</td>'
+    +'<td>'+tot.rSubN.toLocaleString()+'</td><td class="money" style="color:#bbb;">'+fmtM(tot.rSubD)+'</td>'
+    +'<td>'+tot.awdN.toLocaleString()+'</td><td class="money red">'+fmtM(tot.awdD)+'</td>'
+    +'<td>'+pct(tot.cohort)+'</td><td>'+(tot.med!=null?tot.med+'d':'\u2014')+'</td><td></td></tr>';
+  h+='</tbody></table>';
+  document.getElementById('table').innerHTML=h;
+}
+
+function historyRow(key){
+  // last 24 calendar months for the selected estimator / CE
+  var keyFn = groupBy==='est' ? function(r){return r[0];} : function(r){return (r[1]||CEMAP[r[0]]||'Unassigned CE');};
+  var now=new Date(); var months=[];
+  for(var i=23;i>=0;i--){ var d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    months.push({ym:d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2), lab:MN[d.getMonth()]+(d.getMonth()===0||i===23?' \u2019'+String(d.getFullYear()).slice(2):''), s:0,a:0}); }
+  var idx={}; months.forEach(function(m,i){idx[m.ym]=i;});
+  for(var j=0;j<RECS.length;j++){ var r=RECS[j]; if(keyFn(r)!==key) continue;
+    if(r[3]>0&&r[2]){ var k1=r[2].slice(0,7); if(idx[k1]!=null) months[idx[k1]].s+=r[3]; }
+    if(r[5]>0&&r[4]){ var k2=r[4].slice(0,7); if(idx[k2]!=null) months[idx[k2]].a+=r[5]; } }
+  var mx=1; months.forEach(function(m){ mx=Math.max(mx,m.s,m.a); });
+  var H=88;                                             // bar area height in px
+  var px=function(v){ return v>0 ? Math.max(2, Math.round(v/mx*H)) : 0; };
+  var cols='';
+  months.forEach(function(m){
+    cols+='<div class="colu" title="'+m.ym+' \u00b7 Sub '+fmtM(m.s)+' \u00b7 Awd '+fmtM(m.a)+'">'
+      +'<div class="pair" style="height:'+H+'px">'
+      +'<div class="cb s" style="height:'+px(m.s)+'px"></div>'
+      +'<div class="cb a" style="height:'+px(m.a)+'px"></div>'
+      +'</div><div class="cl">'+m.lab+'</div></div>';
+  });
+  return '<tr class="hist"><td colspan="10"><div class="hist-title">'+esc(key)+' \u2014 Trailing 24 Months</div>'
+    +'<div class="cols">'+cols+'</div>'
+    +'<div class="legend"><span><span class="sw" style="background:#555"></span>Submitted $ (by month)</span>'
+    +'<span><span class="sw" style="background:var(--red)"></span>Awarded $ (by month)</span></div></td></tr>';
+}
+
+// ---------- capacity matrix ----------
+function setMat(m){ matMetric=m; renderMatrix(); }
+var matRoster='active';   // 'active' = roster + recent NEW | 'all' = every estimator with T12 activity
+function setMatRoster(v){ matRoster=v; renderMatrix(); }
+function renderMatrix(){
+  var keyFn = groupBy==='est' ? function(r){return r[0];} : function(r){return (r[1]||CEMAP[r[0]]||'Unassigned CE');};
+  var now=new Date(); var months=[];
+  for(var i=11;i>=0;i--){ var d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    months.push({ym:d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2),
+                 lab:MN[d.getMonth()]+' \u2019'+String(d.getFullYear()).slice(2)+(i===0?'*':'')}); }
+  var idx={}; months.forEach(function(m,i){ idx[m.ym]=i; });
+
+  // per key: 12 cells of {n, d}
+  var rows={};
+  for(var j=0;j<RECS.length;j++){ var r=RECS[j];
+    if(r[3]<=0 || !r[2]) continue;
+    var mi=idx[r[2].slice(0,7)]; if(mi==null) continue;
+    var k=keyFn(r);
+    if(!rows[k]){ rows[k]=[]; for(var c=0;c<12;c++) rows[k].push({n:0,d:0}); }
+    rows[k][mi].n++; rows[k][mi].d+=r[3];
+  }
+  var arr=[];
+  for(var k2 in rows){ var cells=rows[k2];
+    var tn=0, td=0; cells.forEach(function(c){ tn+=c.n; td+=c.d; });
+    arr.push({key:k2, cells:cells, tn:tn, td:td}); }
+
+  // Roster handling (estimator view only). NEW = anyone outside ACTIVE_ESTIMATORS who has
+  // submitted a bid in the last 4 weeks — they surface in both modes, flagged. In 'active'
+  // mode the table is restricted to roster + NEW; in 'all' mode every estimator with
+  // trailing-12 activity is shown. Rostered estimators with zero activity always show.
+  var newNames={};
+  if(groupBy==='est'){
+    var active={}; ACTIVE_ESTIMATORS.forEach(function(n){ active[n]=1; });
+    var cutoff=new Date(); cutoff.setDate(cutoff.getDate()-28); cutoff=iso(cutoff);
+    for(var j2=0;j2<RECS.length;j2++){ var r2=RECS[j2];
+      if(r2[3]>0 && r2[2] && r2[2]>=cutoff && !active[r2[0]]) newNames[r2[0]]=1; }
+    if(matRoster==='active') arr=arr.filter(function(e){ return active[e.key] || newNames[e.key]; });
+    // include rostered estimators with zero trailing-12 activity so gaps are visible
+    ACTIVE_ESTIMATORS.forEach(function(n){
+      if(ceFilter!=='ALL' && (CEMAP[n]||'Unassigned CE')!==ceFilter) return;   // respect Chief-Estimator filter
+      if(!arr.some(function(e){return e.key===n;})){
+        var z=[]; for(var c3=0;c3<12;c3++) z.push({n:0,d:0});
+        arr.push({key:n, cells:z, tn:0, td:0});
+      }
+    });
+  }
+  arr.sort(function(a,b){ return matMetric==='n' ? b.tn-a.tn : b.td-a.td; });
+
+  var val=function(c){ return matMetric==='n' ? c.n : matMetric==='d' ? c.d : (c.n>0?c.d/c.n:0); };
+  var fmt=function(v){ return matMetric==='n' ? (v?v:'\u00b7') : (v?fmtM(v):'\u00b7'); };
+  // baseline: count & $ = simple monthly average incl. zero months (capacity view); avg bid = total$/totalN
+  var baseOf=function(e){
+    if(matMetric==='n') return e.tn/12;
+    if(matMetric==='d') return e.td/12;
+    return e.tn>0 ? e.td/e.tn : 0; };
+  var fmtBase=function(v){ return matMetric==='n' ? v.toFixed(1) : fmtM(v); };
+
+  var tabs='<div class="tabs">'
+    +'<div class="tab'+(matMetric==='n'?' active':'')+'" onclick="setMat(\'n\')">Bid Count</div>'
+    +'<div class="tab'+(matMetric==='d'?' active':'')+'" onclick="setMat(\'d\')">Submitted $</div>'
+    +'<div class="tab'+(matMetric==='avg'?' active':'')+'" onclick="setMat(\'avg\')">Avg Bid $</div></div>'
+    +(groupBy==='est' ? '<div class="tabs" style="margin-left:auto;">'
+    +'<div class="tab'+(matRoster==='active'?' active':'')+'" onclick="setMatRoster(\'active\')">Active Roster</div>'
+    +'<div class="tab'+(matRoster==='all'?' active':'')+'" onclick="setMatRoster(\'all\')">All Estimators</div></div>' : '');
+
+  var h='<div class="mx-head"><div class="lb-title">Capacity \u00b7 Monthly Bid Volume</div>'+tabs+'</div>'
+    +'<div class="mx-sub">Bids by Submitted date, trailing 12 months, per '+(groupBy==='est'?'active estimator (roster in config; anyone new bidding in the last 4 weeks auto-appears flagged NEW)':'chief estimator')+'. Cell shading is scaled to each row\u2019s own peak \u2014 read trends left to right, not down columns. <b style="color:var(--amber);">Avg / Active Est</b> = that month\u2019s total \u00f7 estimators who submitted at least one bid that month \u2014 the per-head capacity baseline for forecasting. <b style="color:var(--dim);">Baseline</b> = 12-month monthly average'+(matMetric==='avg'?' (avg bid = total $ \u00f7 total bids)':' (zero months included)')+'. * = current month-to-date.</div>';
+
+  h+='<table class="mx"><thead><tr><th>'+(groupBy==='est'?'Estimator':'Chief Estimator')+'</th>';
+  months.forEach(function(m){ h+='<th>'+m.lab+'</th>'; });
+  h+='<th class="base">Baseline</th></tr></thead><tbody>';
+
+  // Avg per active estimator row (above individual rows): month total / count of estimators
+  // who submitted that month. For the Avg Bid metric this is total $ / total bids instead.
+  var mtot=[]; for(var c0=0;c0<12;c0++) mtot.push({n:0,d:0,act:0});
+  arr.forEach(function(e){ e.cells.forEach(function(c,i){ mtot[i].n+=c.n; mtot[i].d+=c.d; if(c.n>0) mtot[i].act++; }); });
+  var avgVals=mtot.map(function(c){
+    if(c.act===0) return null;
+    if(matMetric==='n') return c.n/c.act;
+    if(matMetric==='d') return c.d/c.act;
+    return c.n>0 ? c.d/c.n : null;
+  });
+  var avgPresent=avgVals.filter(function(v){return v!=null;});
+  var avgBase=avgPresent.length? avgPresent.reduce(function(a,b){return a+b;},0)/avgPresent.length : 0;
+  h+='<tr style="background:#171310;"><td style="color:var(--amber);font-weight:800;">AVG / ACTIVE EST</td>';
+  mtot.forEach(function(c,i){
+    var v=avgVals[i];
+    h+='<td style="color:var(--amber);font-weight:700;" title="'+(matMetric==='n'?c.n+' bids':fmtM(c.d))+' \u00f7 '+c.act+' active estimators">'
+      +(v==null?'\u00b7':(matMetric==='n'?v.toFixed(1):fmtM(v)))
+      +'<div style="font-size:7.5px;color:var(--dimmer);font-weight:400;">'+(c.act?c.act+' est':'')+'</div></td>';
+  });
+  h+='<td class="base" style="color:var(--amber);">'+(matMetric==='n'?avgBase.toFixed(1):fmtM(avgBase))+'</td></tr>';
+
+  arr.forEach(function(e){
+    var mx=1; e.cells.forEach(function(c){ var v=val(c); if(v>mx) mx=v; });
+    h+='<tr><td>'+esc(e.key)+(newNames[e.key]?' <span style="color:var(--green);font-size:9px;font-weight:800;letter-spacing:.1em;">NEW</span>':'')+'</td>';
+    e.cells.forEach(function(c){ var v=val(c);
+      var a=v>0 ? 0.08+0.55*(v/mx) : 0;
+      h+='<td class="'+(v?'':'z')+'" style="background:rgba(225,37,27,'+a.toFixed(2)+')">'+fmt(v)+'</td>'; });
+    h+='<td class="base">'+fmtBase(baseOf(e))+'</td></tr>';
+  });
+
+  // department total row
+  var tot=[]; for(var c2=0;c2<12;c2++) tot.push({n:0,d:0});
+  arr.forEach(function(e){ e.cells.forEach(function(c,i){ tot[i].n+=c.n; tot[i].d+=c.d; }); });
+  var ttn=0, ttd=0; tot.forEach(function(c){ ttn+=c.n; ttd+=c.d; });
+  h+='<tr class="mtot"><td>TOTAL</td>';
+  tot.forEach(function(c){ h+='<td>'+fmt(val(c))+'</td>'; });
+  h+='<td class="base">'+fmtBase(matMetric==='avg'?(ttn>0?ttd/ttn:0):(matMetric==='n'?ttn/12:ttd/12))+'</td></tr>';
+  h+='</tbody></table>';
+  document.getElementById('matrix').innerHTML=h;
+}
+
+// ---------- weekly new bid volume (FY vintage) ----------
+function renderWeekly(){
+  // Weekly aggregates of bids submitted in FY that were also created (col C) in FY.
+  var anchor=new Date(); anchor=new Date(anchor.getFullYear(),anchor.getMonth(),anchor.getDate());
+  var jan1=new Date(+FY,0,1);
+  var w0=new Date(jan1); var dow0=(w0.getDay()+6)%7; w0.setDate(w0.getDate()-dow0);   // Monday on/before Jan 1
+  var weeks=[];
+  for(var d=new Date(w0); d<=anchor; d.setDate(d.getDate()+7)){
+    var s=new Date(d), e=new Date(d); e.setDate(e.getDate()+6);
+    weeks.push({s:iso(s), e:iso(e), lab:MN[s.getMonth()]+' '+s.getDate(), n:0, v:0});
+  }
+  function wkIdx(dt){ // index by Monday of the bid's submitted week
+    var t=new Date(+dt.slice(0,4), +dt.slice(5,7)-1, +dt.slice(8,10));
+    return Math.floor((t-w0)/(7*86400000));
+  }
+  var totN=0, totV=0;
+  for(var i=0;i<RECS.length;i++){ var r=RECS[i];
+    if(r[3]<=0 || !r[2] || r[2].slice(0,4)!==FY) continue;         // submitted this FY
+    if(!r[6] || r[6].slice(0,4)!==FY) continue;                     // created this FY
+    var k=wkIdx(r[2]); if(k<0||k>=weeks.length) continue;
+    weeks[k].n++; weeks[k].v+=r[3]; totN++; totV+=r[3];
+  }
+  var mx=Math.max(1,WEEKLY_TARGET); weeks.forEach(function(w){ if(w.v>mx) mx=w.v; });
+  var avg=weeks.length? totV/weeks.length : 0;
+  var hit=0; weeks.forEach(function(w){ if(w.v>=WEEKLY_TARGET) hit++; });
+  var H=118;
+  var bars='';
+  weeks.forEach(function(w){
+    var h=w.v>0? Math.max(2,Math.round(w.v/mx*H)) : 0;
+    bars+='<div class="wk-col" title="Week of '+w.lab+' ('+w.s+' \u2013 '+w.e+') \u00b7 '+fmtM(w.v)+' \u00b7 '+w.n+' bids \u00b7 '+(w.v>=WEEKLY_TARGET?'AT TARGET':Math.round(w.v/WEEKLY_TARGET*100)+'% of target')+'">'
+      +(w.v>0?'<div class="wk-val">'+fmtM(w.v)+'</div>':'')
+      +'<div class="wk-bar'+(w.v>0?'':' zero')+'" style="height:'+h+'px'+(w.v>=WEEKLY_TARGET?';box-shadow:0 0 0 1px var(--green) inset':'')+'"></div>'
+      +'<div class="wk-lab">'+w.lab+'</div><div class="wk-n">'+(w.n||'')+'</div></div>';
+  });
+  var avgTop = Math.max(0, 150 - Math.round(avg/mx*H) - 22);   // dashed avg line position inside 150px chart
+  var tgtTop = Math.max(0, 150 - Math.round(WEEKLY_TARGET/mx*H) - 22);
+  var h='<div class="mx-head" style="margin-top:34px;"><div class="lb-title">New Bid Volume \u00b7 Weekly FY'+FY+'</div></div>'
+    +'<div class="mx-sub">Submitted $ per week from bids <b style="color:var(--dim);">both created and submitted in FY'+FY+'</b> \u2014 the pipeline replenishment pulse, matching the overview\u2019s Submitted \u00b7 Created FY row. Number under each week = bid count. Solid amber line = <b style="color:var(--amber);">'+fmtM(WEEKLY_TARGET)+'/wk target</b> ('+hit+' of '+weeks.length+' weeks at target); dashed line = weekly average. YTD: '+fmtM(totV)+' across '+totN.toLocaleString()+' bids in '+weeks.length+' weeks ('+fmtM(avg)+' \u00b7 '+(totN/weeks.length).toFixed(1)+' bids per week). Current week is partial.</div>'
+    +'<div class="wk-wrap"><div class="wk-chart">'
+    +'<div class="wk-tgt" style="top:'+tgtTop+'px"><span>target '+fmtM(WEEKLY_TARGET)+'</span></div>'
+    +'<div class="wk-avg" style="top:'+avgTop+'px"><span>avg '+fmtM(avg)+'</span></div>'
+    +bars+'</div></div>';
+  document.getElementById('weekly').innerHTML=h;
+}
+
+// ---------- weekly new bid volume by Chief Estimator ----------
+function renderWeeklyCE(){
+  var anchor=new Date(); anchor=new Date(anchor.getFullYear(),anchor.getMonth(),anchor.getDate());
+  var jan1=new Date(+FY,0,1);
+  var w0=new Date(jan1); var dow0=(w0.getDay()+6)%7; w0.setDate(w0.getDate()-dow0);
+  var weeks=[];
+  for(var d=new Date(w0); d<=anchor; d.setDate(d.getDate()+7)){
+    var s=new Date(d), e=new Date(d); e.setDate(e.getDate()+6);
+    weeks.push({s:iso(s), e:iso(e), lab:MN[s.getMonth()]+' '+s.getDate()});
+  }
+  function wkIdx(dt){ var t=new Date(+dt.slice(0,4), +dt.slice(5,7)-1, +dt.slice(8,10)); return Math.floor((t-w0)/(7*86400000)); }
+  var ceKey=function(r){ return r[1]||CEMAP[r[0]]||'Unassigned CE'; };
+
+  var byCe={};
+  for(var i=0;i<RECS.length;i++){ var r=RECS[i];
+    if(r[3]<=0 || !r[2] || r[2].slice(0,4)!==FY) continue;          // submitted this FY
+    if(!r[6] || r[6].slice(0,4)!==FY) continue;                      // created this FY
+    var k=wkIdx(r[2]); if(k<0||k>=weeks.length) continue;
+    var ce=ceKey(r);
+    if(!byCe[ce]){ byCe[ce]={key:ce, tot:0, n:0, cells:[]}; for(var c=0;c<weeks.length;c++) byCe[ce].cells.push({v:0,n:0}); }
+    byCe[ce].cells[k].v+=r[3]; byCe[ce].cells[k].n++; byCe[ce].tot+=r[3]; byCe[ce].n++;
+  }
+  var arr=Object.keys(byCe).map(function(k2){return byCe[k2];});
+  arr.sort(function(a,b){ return b.tot-a.tot; });
+
+  // Per-book scale (so each CE's trend and labels are readable); dollar labels give exact values.
+  var H=118;
+  var rows='';
+  arr.forEach(function(ce){
+    var tgt=CE_TARGETS[ce.key]||null;
+    var mx=Math.max(1, tgt||0); ce.cells.forEach(function(c){ if(c.v>mx) mx=c.v; });
+    var avg=ce.tot/weeks.length;
+    var hit=0;
+    var bars='';
+    ce.cells.forEach(function(c,i){
+      if(tgt&&c.v>=tgt) hit++;
+      var hpx=c.v>0? Math.max(2,Math.round(c.v/mx*H)) : 0;
+      bars+='<div class="wk-col" title="'+esc(ce.key)+' \u00b7 Week of '+weeks[i].lab+' ('+weeks[i].s+' \u2013 '+weeks[i].e+') \u00b7 '+fmtM(c.v)+' \u00b7 '+c.n+' bids'+(tgt?' \u00b7 '+Math.round(c.v/tgt*100)+'% of target':'')+'">'
+        +(c.v>0?'<div class="wk-val">'+fmtM(c.v)+'</div>':'')
+        +'<div class="wk-bar'+(c.v>0?'':' zero')+'" style="height:'+hpx+'px'+(tgt&&c.v>=tgt?';box-shadow:0 0 0 1px var(--green) inset':'')+'"></div>'
+        +'<div class="wk-lab">'+weeks[i].lab+'</div><div class="wk-n">'+(c.n||'')+'</div></div>';
+    });
+    var tgtLine = tgt ? '<div class="wk-tgt" style="top:'+Math.max(0,150-Math.round(tgt/mx*H)-22)+'px"><span>target '+fmtM(tgt)+'</span></div>' : '';
+    var avgLine = '<div class="wk-avg" style="top:'+Math.max(0,150-Math.round(avg/mx*H)-22)+'px"><span>avg '+fmtM(avg)+'</span></div>';
+    rows+='<div class="wkce-hd"><span class="wkce-name">'+esc(ce.key)+'</span>'
+      +'<span class="wkce-meta2">YTD '+fmtM(ce.tot)+' \u00b7 '+ce.n+' bids \u00b7 avg '+fmtM(avg)+'/wk'
+      +(tgt?' \u00b7 <span style="color:var(--amber);font-weight:700;">target '+fmtM(tgt)+'/wk</span> \u00b7 '+hit+' of '+weeks.length+' wks at target \u00b7 '+Math.round(avg/tgt*100)+'% of pace':'')
+      +'</span></div>'
+      +'<div class="wk-wrap"><div class="wk-chart">'+tgtLine+avgLine+bars+'</div></div>';
+  });
+
+  var h='<div class="mx-head" style="margin-top:34px;"><div class="lb-title">New Bid Volume \u00b7 Weekly by Chief Estimator</div></div>'
+    +'<div class="mx-sub">Same FY'+FY+'-vintage definition as the chart above (created and submitted this year), split by Chief Estimator book. Each chart is scaled to its own book \u2014 read trends within a row, and use the dollar labels to compare across CEs. Amber line = that CE\u2019s weekly target; dashed line = their weekly average; bars outlined green met target. Number under each week = bid count. Current week is partial.</div>'
+    +rows;
+  document.getElementById('weeklyce').innerHTML=h;
+}
+
+// ---------- estimator goal tracking ----------
+function renderGoals(){
+  var anchor=new Date(); anchor=new Date(anchor.getFullYear(),anchor.getMonth(),anchor.getDate());
+  var A=iso(anchor);
+  var rows=[];
+  for(var name in ESTIMATOR_GOALS){
+    var g=ESTIMATOR_GOALS[name];
+    var bidT=g[0], awdT=g[1], start=g[2];
+    var eff = start > (FY+'-01-01') ? start : (FY+'-01-01');
+    var weeks = Math.max(1, (new Date(A)-new Date(eff))/(7*86400000));
+    var bid=0, bidN=0, awd=0, awdN=0;
+    for(var i=0;i<RECS.length;i++){ var r=RECS[i];
+      if(r[0]!==name) continue;
+      // new bids: FY-vintage (created & submitted this year), on/after their start date
+      if(r[3]>0 && r[2] && r[2].slice(0,4)===FY && r[6] && r[6].slice(0,4)===FY && r[2]>=eff){ bid+=r[3]; bidN++; }
+      // awards: any vintage, landed this year on/after their start date
+      if(r[5]>0 && r[4] && r[4].slice(0,4)===FY && r[4]>=eff){ awd+=r[5]; awdN++; }
+    }
+    rows.push({name:name, ce:CEMAP[name]||'', start:start, weeks:weeks,
+      bidT:bidT, bidAvg:bid/weeks, bidPace:(bid/weeks)/bidT, bid:bid, bidN:bidN,
+      awdT:awdT, awdAvg:awd/weeks, awdPace:(awd/weeks)/awdT, awd:awd, awdN:awdN});
+  }
+  rows.sort(function(a,b){ return Math.min(a.bidPace,a.awdPace)-Math.min(b.bidPace,b.awdPace); });
+
+  var clr=function(p){ return p>=1?'g-green':(p>=0.7?'g-amber':'g-red'); };
+  var hex=function(p){ return p>=1?'var(--green)':(p>=0.7?'var(--amber)':'var(--red)'); };
+  var bar=function(p){ return '<span class="gbar"><span class="gfill" style="width:'+Math.min(100,p/1.5*100).toFixed(0)+'%;background:'+hex(p)+'"></span><span class="gtick"></span></span>'; };
+  var stLab=function(s){ var p=s.split('-'); return MN[+p[1]-1]+' '+(+p[2]); };
+
+  var h='<div class="mx-head" style="margin-top:34px;"><div class="lb-title">Estimator Goal Tracking \u00b7 FY'+FY+'</div></div>'
+    +'<div class="mx-sub">Weekly goals prorated from each estimator\u2019s start date (goals for mid-year starters only count weeks since they began). <b style="color:var(--dim);">Bid pace</b> = avg weekly new-bid $ (created and submitted FY'+FY+') vs goal. <b style="color:var(--dim);">Award pace</b> = avg weekly awarded $ (any vintage, landed since start) vs goal. Tick on each bar = 100% of goal; bar maxes at 150%. Green \u2265100% \u00b7 amber 70\u201399% \u00b7 red &lt;70%. Sorted worst-first. Status dot = the weaker of the two paces.</div>'
+    +'<table class="gl"><thead><tr><th>Estimator</th><th>Start</th><th>Wks</th>'
+    +'<th>Bid Goal/wk</th><th>Actual/wk</th><th>Bid Pace</th>'
+    +'<th>Award Goal/wk</th><th>Actual/wk</th><th>Award Pace</th></tr></thead><tbody>';
+
+  var tB=0,tBT=0,tA=0,tAT=0,tW=0;
+  rows.forEach(function(e){
+    var worst=Math.min(e.bidPace,e.awdPace);
+    tB+=e.bid; tA+=e.awd; tBT+=e.bidT*e.weeks; tAT+=e.awdT*e.weeks;
+    h+='<tr><td><span class="gdot" style="background:'+hex(worst)+'"></span>'+esc(e.name)
+      +(e.ce?' <span class="gsub">\u00b7 '+esc(e.ce)+'</span>':'')+'</td>'
+      +'<td class="gsub">'+stLab(e.start)+'</td>'
+      +'<td class="gsub">'+e.weeks.toFixed(1)+'</td>'
+      +'<td class="gsub">'+fmtM(e.bidT)+'</td>'
+      +'<td>'+fmtM(e.bidAvg)+'<div class="gsub">'+fmtM(e.bid)+' \u00b7 '+e.bidN+' bids</div></td>'
+      +'<td><span class="gpace '+clr(e.bidPace)+'">'+Math.round(e.bidPace*100)+'%</span>'+bar(e.bidPace)+'</td>'
+      +'<td class="gsub">'+fmtM(e.awdT)+'</td>'
+      +'<td>'+fmtM(e.awdAvg)+'<div class="gsub">'+fmtM(e.awd)+' \u00b7 '+e.awdN+' awards</div></td>'
+      +'<td><span class="gpace '+clr(e.awdPace)+'">'+Math.round(e.awdPace*100)+'%</span>'+bar(e.awdPace)+'</td></tr>';
+  });
+  var bp=tBT>0?tB/tBT:0, ap=tAT>0?tA/tAT:0;
+  h+='<tr class="total" style="font-weight:800;"><td style="border-top:2px solid var(--red);">TEAM</td>'
+    +'<td style="border-top:2px solid var(--red);"></td><td style="border-top:2px solid var(--red);"></td>'
+    +'<td style="border-top:2px solid var(--red);"></td>'
+    +'<td style="border-top:2px solid var(--red);">'+fmtM(tB)+'</td>'
+    +'<td style="border-top:2px solid var(--red);"><span class="gpace '+clr(bp)+'">'+Math.round(bp*100)+'%</span>'+bar(bp)+'</td>'
+    +'<td style="border-top:2px solid var(--red);"></td>'
+    +'<td style="border-top:2px solid var(--red);">'+fmtM(tA)+'</td>'
+    +'<td style="border-top:2px solid var(--red);"><span class="gpace '+clr(ap)+'">'+Math.round(ap*100)+'%</span>'+bar(ap)+'</td></tr>';
+  h+='</tbody></table>';
+  document.getElementById('goals').innerHTML=h;
+}
+
+// ---------- bid gross profit by estimator ----------
+function renderGP(){
+  var w=winById(activeWin);
+  var keyFn = groupBy==='est' ? function(r){return r[0];} : function(r){return (r[1]||CEMAP[r[0]]||'Unassigned CE');};
+  var arr=aggregate(w,keyFn).filter(function(e){ return e.awdN>0; });
+  arr.sort(function(a,b){ return b.gpD-a.gpD; });
+  var tot=totalsOf(arr);
+  var maxGp=1; arr.forEach(function(e){ if(e.gpD>maxGp) maxGp=e.gpD; });
+
+  var rows='';
+  arr.forEach(function(e){
+    var blend = e.gpWon>0 ? e.gpD/e.gpWon : null;
+    var covPct = e.awdN>0 ? e.gpStN/e.awdN : 0;
+    var covCls = covPct>=0.8 ? 'g-green' : (covPct>=0.5 ? 'g-amber' : 'g-red');
+    var notes=[];
+    if(e.gpCostN>0) notes.push(e.gpCostN+' via cost data');
+    if(e.gpMissN>0) notes.push(e.gpMissN+' missing GP %');
+    rows+='<tr><td>'+esc(e.key)+(groupBy==='est'&&CEMAP[e.key]?' <span class="gsub">\u00b7 '+esc(CEMAP[e.key])+'</span>':'')
+      +'<div class="bar-wrap"><div class="bar-a" style="width:'+(e.gpD/maxGp*100)+'%"></div></div></td>'
+      +'<td class="dim">'+e.awdN+'</td>'
+      +'<td class="dim" style="font-family:Michroma,sans-serif;font-size:12px;">'+fmtM(e.awdD)+'</td>'
+      +'<td class="money red">'+(e.gpD>0?fmtM(e.gpD):'<span class="dim">\u2014</span>')+'</td>'
+      +'<td>'+(blend!=null?pct(blend):'<span class="dim">\u2014</span>')+'</td>'
+      +'<td class="'+covCls+'" style="font-size:11px;">'+e.gpStN+' of '+e.awdN+(notes.length?' <span class="gsub">('+notes.join(' \u00b7 ')+')</span>':'')+'</td></tr>';
+  });
+  var totBlend = tot.gpWon>0 ? tot.gpD/tot.gpWon : null;
+  var totNotes=[];
+  if(tot.gpCostN>0) totNotes.push(tot.gpCostN+' via cost');
+  if(tot.gpMissN>0) totNotes.push(tot.gpMissN+' missing');
+  rows+='<tr class="total" style="font-weight:800;"><td style="border-top:2px solid var(--red);">TOTAL</td>'
+    +'<td style="border-top:2px solid var(--red);">'+tot.awdN+'</td>'
+    +'<td style="border-top:2px solid var(--red);">'+fmtM(tot.awdD)+'</td>'
+    +'<td style="border-top:2px solid var(--red);" class="money red">'+fmtM(tot.gpD)+'</td>'
+    +'<td style="border-top:2px solid var(--red);">'+(totBlend!=null?pct(totBlend):'\u2014')+'</td>'
+    +'<td style="border-top:2px solid var(--red);" class="gsub">'+tot.gpStN+' of '+tot.awdN+' with Bid GP %'+(totNotes.length?' ('+totNotes.join(' \u00b7 ')+')':'')+'</td></tr>';
+
+  var h='<div class="mx-head" style="margin-top:34px;"><div class="lb-title">Bid Gross Profit \u00b7 '+(groupBy==='est'?'By Estimator':'By Chief Estimator')+'</div>'
+    +'<div class="wkce-meta2" style="margin-left:6px;">'+winById(activeWin).lab+' \u00b7 follows the leaderboard window</div></div>'
+    +'<div class="mx-sub"><b style="color:var(--dim);">Bid GP</b> = estimated gross profit on awards landed in the window: Won $ \u00d7 the stated <b style="color:var(--dim);">Bid Gross Profit %</b> field (now curated via the ZOHO backfill), with (Submitted $ \u2212 Projected Cost) \u00f7 Submitted $ as fallback where the field is still blank. Values outside a \u221210%..60% sanity window are treated as entry noise and excluded from GP (shown in Coverage). This is <b style="color:var(--dim);">estimated margin at bid time</b> \u2014 Preconstruction creates GP, Operations earns it; realized margin lives in the WIP, not here. Blended GP % is dollar-weighted over covered awards only.</div>'
+    +'<table class="gl"><thead><tr><th>'+(groupBy==='est'?'Estimator':'Chief Estimator')+'</th><th>Awards</th><th>Awarded $</th><th>Bid GP $</th><th>Blended GP %</th><th>Bid GP % Coverage</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  document.getElementById('gp').innerHTML=h;
+}
+
+// ---------- boot ----------
+function render(){
+  RECS=filteredView();               // Chief-Estimator filter focuses the view on that CE's projects
+  renderOverview(); renderTabs(); renderTable(); renderGP(); renderMatrix(); renderWeekly(); renderWeeklyCE();
+  RECS=ALLRECS;                      // Goal Tracking always shows the full team, regardless of the CE filter
+  renderGoals();
+}
+
+function onData(json){
+  var data=JSON.parse(json);
+  RECS=data.recs;
+  ALLRECS=data.recs;
+  // most common CE per estimator
+  var cnt={};
+  RECS.forEach(function(r){ if(!r[1])return; cnt[r[0]]=cnt[r[0]]||{}; cnt[r[0]][r[1]]=(cnt[r[0]][r[1]]||0)+1; });
+  for(var e in cnt){ var best='',n=0; for(var c in cnt[e]) if(cnt[e][c]>n){n=cnt[e][c];best=c;} CEMAP[e]=best; }
+  buildWindows();
+  var anchor=winById('daily').s.split('-');
+  document.getElementById('asof').innerHTML=
+    'Live as of <b>'+data.generated+'</b><br>Windows run through <b>'+MN[+anchor[1]-1]+' '+(+anchor[2])+', '+anchor[0]+'</b> (today)<br>Source: BasisBoard \u00b7 '+data.count.toLocaleString()+' records';
+  document.getElementById('loading').style.display='none';
+  document.getElementById('app').style.display='block';
+  (function(){
+    var ces={}; ALLRECS.forEach(function(r){ ces[ceKeyOf(r)]=1; });
+    var list=Object.keys(ces).sort();
+    var opts='<option value="ALL">All Chief Estimators</option>';
+    list.forEach(function(c){ opts+='<option value="'+esc(c).replace(/"/g,'&quot;')+'">'+esc(c)+'</option>'; });
+    document.getElementById('cefilterbar').innerHTML=
+      '<div style="display:flex;align-items:center;gap:12px;margin:2px 0 20px;flex-wrap:wrap;">'
+      +'<span style="font-family:Michroma,sans-serif;font-size:11px;letter-spacing:1px;color:var(--dim);text-transform:uppercase;">Chief Estimator</span>'
+      +'<select id="cesel" onchange="setCE(this.value)" style="background:#141414;color:#fff;border:1px solid var(--red);border-radius:6px;padding:7px 12px;font-family:Inter,sans-serif;font-size:13px;font-weight:600;cursor:pointer;min-width:240px;">'+opts+'</select></div>';
+    document.getElementById('cesel').value=ceFilter;
+  })();
+  render();
+}
+function onErr(e){
+  document.getElementById('loading').style.display='none';
+  var el=document.getElementById('err'); el.style.display='block';
+  el.textContent='Failed to load data: '+(e&&e.message?e.message:e);
+}
+google.script.run.withSuccessHandler(onData).withFailureHandler(onErr).getData();
+</script>
+</body>
+</html>
