@@ -2,16 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
- <script>
-  // Runs before the page paints: if this is the Active Projects link, leave
-  // immediately for the map — no landing page flash.
+<script>
+  // Runs before the page paints: if this is the Active Projects link, hide the
+  // page and leave immediately for the map — nothing shows while Google loads.
   (function(){
     var raw=(location.hash||'').replace(/^#/,'');
     if(raw && decodeURIComponent(raw).trim().toLowerCase()==='oe active projects'){
+      var s=document.createElement('style');
+      s.textContent='html{background:#000!important}body{display:none!important}';
+      document.head.appendChild(s);
       window.location.replace('https://script.google.com/macros/s/AKfycbw0Do9YS1XL7Ks3LA7AJ4_E9eoEZS_kErF29IdDQBfJyb0ccKhIsLhc6G6TrUIXf-iQGw/exec');
     }
   })();
-</script> 
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
