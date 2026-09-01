@@ -235,6 +235,18 @@ window.addEventListener('popstate',()=>{ if(viewer.classList.contains('open')) c
 const note=document.getElementById('signinNote');
 try{ if(localStorage.getItem('oe_note_dismissed')==='1') note.classList.add('hide'); }catch(e){}
 document.getElementById('noteX').addEventListener('click',()=>{ note.classList.add('hide'); try{localStorage.setItem('oe_note_dismissed','1');}catch(e){} });
+  // Direct deep-link for the Active Projects map ONLY: send the browser straight
+// to the map, skipping the landing page. All other hashes keep their normal
+// in-launcher behavior.
+(function directMapLink(){
+  var raw = (location.hash || '').replace(/^#/, '');
+  if(!raw) return;
+  var wanted = decodeURIComponent(raw).trim().toLowerCase();
+  if(wanted === 'oe active projects'){
+    var app = APPS.find(function(a){ return a.name.trim().toLowerCase() === 'oe active projects'; });
+    if(app && app.url){ window.location.replace(app.url); }
+  }
+})();
 </script>
 </body>
 </html>
