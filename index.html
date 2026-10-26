@@ -168,6 +168,7 @@
 <script>
 const APPS = [
   { name:"OE Business Dev", desc:"Business Development", url:"https://script.google.com/a/macros/optiline.co/s/AKfycbxtZNDAC_3d_wkCstZjnKo527ATPQ8EwlLSneb3FqyG4FSbf82XHRZ_gZXrfbBebI2K/exec", icon:"bd" },
+  { name:"OE BD Indicators", desc:"BD Leading Indicators", url:"PASTE_BD_INDICATORS_EXEC_URL", icon:"bdli" },
   { name:"OE Basis Tasks", desc:"BasisBoard Tasks", url:"https://script.google.com/a/macros/optiline.co/s/AKfycbyAEsHlyLhKmbW0Ewm2KxEobHb9CqqZJqT0pNa8eAksaMwBGf15QtgXps8TkZMVxGjV/exec", icon:"tasks" },
   { name:"OE Project Lookup", desc:"Project Search", url:"https://script.google.com/a/macros/optiline.co/s/AKfycbwOMin_CRKNXkisA8HzndJHAhlLRdpYNiwPQfvMAqPN5UUsy6dPSgD1Ds2v90rXgy5U/exec", icon:"lookup" },
   { name:"OE Pipeline", desc:"Pipeline Map", url:"https://script.google.com/a/macros/optiline.co/s/AKfycbxRt9Lxf4RKOYyCgB9tRhTufBvD8rwbVT_OLVpQkdnSABK_O5a4yIYqFt-0A0dBLxXW/exec", icon:"pipeline" },
@@ -183,6 +184,7 @@ const APPS = [
 ];
 
 const ICONS = {
+  bdli:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><path d="M6 16v-3"/><path d="M10 16v-6"/><path d="M14 16v-4"/><path d="M18 16V7"/><path d="M5 9l5-4 4 3 5-4"/></svg>`,
   tasks:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11"/><path d="M9 12h11"/><path d="M9 18h11"/><path d="M4 6l1 1 2-2"/><path d="M4 12l1 1 2-2"/><path d="M4 18l1 1 2-2"/></svg>`,
   lookup:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>`,
   bd:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M6.8 6h10.4"/><path d="M6.6 7.6 10.8 16.2"/><path d="M17.4 7.6 13.2 16.2"/></svg>`,
@@ -203,6 +205,7 @@ const ICONS = {
 
 const grid=document.getElementById('grid');
 APPS.forEach((app,i)=>{
+  if(!/^https:\/\//.test(app.url)) return;   // tile stays hidden until its /exec URL is pasted in
   const t=document.createElement('div'); t.className='tile';
   t.innerHTML=`<div class="icon-badge">${ICONS[app.icon]||ICONS.grid}</div><div class="label">${app.name}</div><div class="desc">${app.desc||''}</div>`;
   t.addEventListener('click',()=>openApp(i));
